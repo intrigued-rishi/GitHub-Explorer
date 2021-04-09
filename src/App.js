@@ -7,22 +7,27 @@ import Search from "./components/Search"
 import UserCard from "./components/UserCard"
 import RepoCard from "./components/RepoCard"
 
+const PAGE_SIZE=9;
+
 class App extends React.Component{
   constructor(){
     super();
     this.state={
       user:null,
       loading:null,
-      repos:[]
+      repos:[],
+      page:1
     }
   }
   fetchUserRepo=async (user)=>{
+    let currpage = this.state.page;
     try {
-      let res=await fetch(`https://api.github.com/users/${user}/repos?page=1`);
+      let res=await fetch(`https://api.github.com/users/${user}/repos?page=${currpage}&per_page=${PAGE_SIZE}`);
       if(res.ok){
         res=await res.json();
         this.setState({
           repos:res,
+          page:currpage+1
         });
       }
     } catch (error) {
@@ -47,6 +52,9 @@ class App extends React.Component{
   }
   fetchData=async (username)=>{
     try {
+      await this.setState({
+        page:1
+      });
       this.setState({
         loading:true
       })
@@ -62,8 +70,32 @@ class App extends React.Component{
       })
     }
   }
+  loadMore=async ()=>{
+    let user = this.state.user.login;
+    let currpage = this.state.page;
+    try {
+      let res=await fetch(`https://api.github.com/users/${user}/repos?page=${currpage}&per_page=${PAGE_SIZE}`);
+      if(res.ok){
+        res=await res.json();
+        this.setState((state)=>{
+          state.repos.push(...res);
+          return {
+            repos:state.repos,
+            page:state.page+1
+          }
+
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
   render(){
     let repos = this.state.repos;
+    let hasNext=false;
+    if(this.state.user){
+        hasNext=(PAGE_SIZE*(this.state.page-1))<this.state.user.public_repos;
+    }
     return (
       <div>
         <Search fetchUserData={this.fetchData}/>
@@ -83,7 +115,12 @@ class App extends React.Component{
             })
           }
         </div>
-
+        <div className="text-center">
+            {
+              this.state.user&&hasNext&&
+              <button className="btn btn-info " onClick={this.loadMore}>Load More</button>
+            }
+        </div>
       </div>
     );
   }

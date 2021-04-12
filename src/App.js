@@ -6,8 +6,10 @@ import "bootstrap/dist/js/bootstrap.min.js"
 import Search from "./components/Search"
 import UserCard from "./components/UserCard"
 import RepoCard from "./components/RepoCard"
+import NoOne from "./components/NoOne"
+import $ from 'jquery'
 
-const PAGE_SIZE=9;
+let PAGE_SIZE=9;
 
 class App extends React.Component{
   constructor(){
@@ -19,6 +21,14 @@ class App extends React.Component{
       page:1
     }
   }
+  componentDidMount(){
+    
+  }
+
+  componentWillUnount(){
+    
+  }
+
   fetchUserRepo=async (user)=>{
     let currpage = this.state.page;
     try {
@@ -106,21 +116,26 @@ class App extends React.Component{
                           </div>
                                    </p>}
           </div>
+          {!(this.state.user)&&<NoOne/>}
           <div>{this.state.user&&<UserCard user={this.state.user}/>}</div>
         </div>
         <div className="repo-outer mx-2">
           {
             repos.map((repo,ind)=>{
-              return (<RepoCard repo={repo} key={ind}/>)
+              return (<RepoCard repo={repo} key={repo.id}/>)
             })
           }
         </div>
-        <div className="text-center">
-            {
-              this.state.user&&hasNext&&
+        
+        {
+          this.state.user&&hasNext&&
+          (
+            <div className="text-center">
               <button className="btn btn-info " onClick={this.loadMore}>Load More</button>
-            }
-        </div>
+            </div>
+          )
+        }
+        
       </div>
     );
   }

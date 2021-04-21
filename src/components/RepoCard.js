@@ -9,7 +9,7 @@ export default function userCard(param) {
             <div className="card-body">
                 <p className="card-text"><strong>Stars:</strong>{repo.stargazers_count}</p>
                 <p className="card-text"><strong>Watchers:</strong>{repo.watchers_count}</p>
-                <a className="btn btn-warning" href={repo.html_url}>Link</a>
+                <a className="btn btn-warning" href={repo.html_url} target="_blank">Link</a>
             </div>
             </div>
         </div>

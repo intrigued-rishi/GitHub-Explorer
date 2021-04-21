@@ -8,12 +8,13 @@ import UserCard from "./components/UserCard"
 import RepoCard from "./components/RepoCard"
 import NoOne from "./components/NoOne"
 import $ from 'jquery'
+import {Route,Switch,Link} from 'react-router-dom';
 
 let PAGE_SIZE=9;
 
 class App extends React.Component{
-  constructor(){
-    super();
+  constructor(props){
+    super(props);
     this.state={
       user:null,
       loading:null,
@@ -68,8 +69,8 @@ class App extends React.Component{
       this.setState({
         loading:true
       })
-      await this.fetchUserRepo(username);
       await this.fetchUserData(username);
+      await this.fetchUserRepo(username);
       this.setState({
         loading:false
       })
@@ -103,40 +104,42 @@ class App extends React.Component{
   render(){
     let repos = this.state.repos;
     let hasNext=false;
+    let {match,history}=this.props.urldata; 
     if(this.state.user){
         hasNext=(PAGE_SIZE*(this.state.page-1))<this.state.user.public_repos;
     }
     return (
-      <div>
-        <Search fetchUserData={this.fetchData}/>
-        <div className="outer my-2">
-          <div>{this.state.loading&&<p>
-                          <div className="spinner-border text-success" role="status">
-                            <span className="visually-hidden"></span>
-                          </div>
-                                   </p>}
-          </div>
-          {!(this.state.user)&&<NoOne/>}
-          <div>{this.state.user&&<UserCard user={this.state.user}/>}</div>
-        </div>
-        <div className="repo-outer mx-2">
-          {
-            repos.map((repo,ind)=>{
-              return (<RepoCard repo={repo} key={repo.id}/>)
-            })
-          }
-        </div>
-        
-        {
-          this.state.user&&hasNext&&
-          (
-            <div className="text-center">
-              <button className="btn btn-info " onClick={this.loadMore}>Load More</button>
+          <div>
+            
+          <Search fetchUserData={this.fetchData} username={match.params.username} history={history}/>
+          <div className="outer my-2">
+            <div>{this.state.loading&&<p>
+                            <div className="spinner-border text-success" role="status">
+                              <span className="visually-hidden"></span>
+                            </div>
+                                    </p>}
             </div>
-          )
-        }
-        
-      </div>
+            {!(this.state.user)&&<NoOne/>}
+            <div>{this.state.user&&<UserCard user={this.state.user}/>}</div>
+          </div>
+          <div className="repo-outer mx-2">
+            {
+              repos.map((repo,ind)=>{
+                return (<RepoCard repo={repo} key={repo.id}/>)
+              })
+            }
+          </div>
+          
+          {
+            this.state.user&&hasNext&&
+            (
+              <div className="text-center">
+                <button className="btn btn-info " onClick={this.loadMore}>Load More</button>
+              </div>
+            )
+          }
+          
+        </div>
     );
   }
 }
